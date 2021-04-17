@@ -1,0 +1,13 @@
+I choose to work on the challenge which involved creating better swap gates.
+I started by analyzing the schedules that Qiskit creates for a swap gate. The swap gate is decomposed in three CNOT gates.
+The first thing I noticed is that swap(0,1) is treated differently than swap(1,0) even tho they should have the same outcome. This is inefficient because the u channels are directional and CR puses can only be created in one direction. In this case because the CR is from 1 to 0, swap(0,1) ends up having more gates than swap(1,0) because it also needs the H gates to invert the CNOTS.
+The second thing I noticed is that single qubit pulses that end up next to each other from the neighboring CNOT gates can be merged into a single pulse in order to reduce gate time.
+Finlay I noticed that the CNOT gate has the same effect if it is traversed from left to right or from right to left. This means that the order of the pulses that make up a CNOT gate can be reversed. If I reversed the order of the pulses that make up the leftmost CNOT then I end up with the single qubit pulses towards the middle of the schedule, next to the pulses from the middle CNOT. Then I can merge this single qubit pulses and further reduce gate time.
+In short I took these steps:
+1. For any pair of qubits choose the order that gives the least number of gates in a native SWAP schedule
+2. In this schedule identify the three CNOT gates.
+3. For the leftmost CNOT reverse the order of the pulses.
+4. Merge any neighboring single-qubit pulses into one.
+5. Use this schedule for both diection of SWAPs between the 2 qubits (swap(0,1) and swap(1,0)) 
+
+The resulting schedule for each pair is visible in the notebook
